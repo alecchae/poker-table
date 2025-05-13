@@ -1,3 +1,5 @@
+/* styles.css */
+
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -11,7 +13,7 @@ body {
 }
 
 .top-bar {
-  display: none; /* Hidden since button is now in table-container */
+  display: none;
 }
 
 .reset-button {
@@ -117,4 +119,48 @@ body {
   flex-wrap: nowrap;
   justify-content: center;
   gap: 4px;
+}
+
+.community-cards {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 42px;
+  z-index: 5;
+}
+
+.community-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.label {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: white;
+}
+
+.card-row {
+  display: flex;
+  gap: 8px;
+}
+
+.community-card {
+  width: clamp(78px, 7.2vw, 102px);
+  height: clamp(108px, 9.6vw, 144px);
+  object-fit: contain;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.community-card.placeholder {
+  background-color: #ffffff33;
+  border: 2px dashed #ccc;
 }

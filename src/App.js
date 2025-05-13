@@ -1,5 +1,5 @@
 // App.js
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import Card from "./components/Card";
@@ -80,16 +80,57 @@ function App() {
     setDraggedCard(null);
   };
 
-  const handleReset = () => {
-    setSeats(initialSeats);
-    setAvailableCards(fullDeck);
+  const handleRemoveCommunityCard = (stage, card) => {
+  setCommunity((prev) => ({
+    ...prev,
+    [stage]: prev[stage].filter((c) => c !== card)
+  }));
+
+  // Optionally return card to top bar
+  if (!availableCards.includes(card)) {
+    setAvailableCards((prev) => [...prev, card].sort(cardSort));
+  }
+};
+
+const handleDropCommunityCard = (stage, card, limit) => {
+  const current = communityRef.current[stage];
+
+  // ❌ Reject if full or already added
+  if (current.includes(card) || current.length >= limit) {
+    // ✅ Restore it back to top if it was dragged
+    if (!availableCards.includes(card)) {
+      setAvailableCards((prev) => [...prev, card].sort(cardSort));
+    }
     setDraggedCard(null);
-  };
+    return;
+  }
+
+  // ✅ Accept card
+  setCommunity((prev) => ({
+    ...prev,
+    [stage]: [...prev[stage], card],
+  }));
+
+  setAvailableCards((prev) => prev.filter((c) => c !== card));
+  setDraggedCard(null);
+};
+
+
+  const handleReset = () => {
+  setSeats(initialSeats);
+  setAvailableCards(fullDeck);
+  setCommunity({
+    flop: [],
+    turn: [],
+    river: []
+  });
+  setDraggedCard(null);
+};
 
   const handleDragStart = (card) => {
     setDraggedCard(card);
     // Remove from top immediately
-    setAvailableCards((prev) => prev.filter((c) => c !== card));
+    //setAvailableCards((prev) => prev.filter((c) => c !== card));
   };
 
   const returnCardToTop = (card) => {
@@ -103,6 +144,19 @@ function App() {
   };
 
   const cardSort = (a, b) => fullDeck.indexOf(a) - fullDeck.indexOf(b);
+
+  const [community, setCommunity] = useState({
+  flop: [],
+  turn: [],
+  river: [],
+});
+const communityRef = useRef(community);
+
+// Keep it updated
+useEffect(() => {
+  communityRef.current = community;
+}, [community]);
+
 
   const [, dropRef] = useDrop(() => ({
     accept: "CARD",
@@ -124,11 +178,15 @@ function App() {
       </div>
 
       <Table
-        seats={seats}
-        onDropCard={handleDropCard}
-        onRemoveCard={handleRemoveCard}
-        returnCardToTop={returnCardToTop}
-      />
+  seats={seats}
+  onDropCard={handleDropCard}
+  onRemoveCard={handleRemoveCard}
+  returnCardToTop={returnCardToTop}
+  community={community}
+  onRemoveCommunityCard={handleRemoveCommunityCard} 
+  onDropCommunityCard={handleDropCommunityCard}
+/>
+
       <button onClick={handleReset} className="reset-button">Reset Table</button>
     </div>
   );
