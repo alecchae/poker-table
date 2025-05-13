@@ -6,8 +6,8 @@ function Seat({ position, cards, onDropCard, onRemoveCard }) {
   const [{ isOver }, drop] = useDrop(() => ({
     accept: "CARD",
     drop: (item) => {
-      onDropCard(position, item.card);
-    },
+  onDropCard(position, item.card);
+},
     collect: (monitor) => ({
       isOver: monitor.isOver(),
     }),

@@ -1,3 +1,4 @@
+// App.js
 import React, { useState } from "react";
 import { DndProvider, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -29,18 +30,54 @@ function App() {
   const [draggedCard, setDraggedCard] = useState(null);
 
   const handleDropCard = (position, card) => {
-    setSeats((prev) => {
-      if (prev[position].includes(card) || prev[position].length >= 2) return prev;
-      return { ...prev, [position]: [...prev[position], card] };
-    });
-  };
+  setSeats((prevSeats) => {
+    const seat = prevSeats[position];
+
+    // ❌ Reject: seat already has 2 cards or this card
+    if (seat.includes(card) || seat.length >= 2) {
+      // Restore to top
+      setAvailableCards((prevAvailable) => {
+        if (!prevAvailable.includes(card)) {
+          return [...prevAvailable, card].sort(cardSort);
+        }
+        return prevAvailable;
+      });
+
+      return prevSeats; // No change
+    }
+
+    // ✅ Accept: add card to seat
+    setAvailableCards((prevAvailable) =>
+      prevAvailable.filter((c) => c !== card)
+    );
+
+    return {
+      ...prevSeats,
+      [position]: [...seat, card],
+    };
+  });
+
+  setDraggedCard(null);
+};
+
 
   const handleRemoveCard = (fromPosition, card) => {
-    setSeats((prev) => ({
-      ...prev,
-      [fromPosition]: prev[fromPosition].filter((c) => c !== card),
-    }));
-    setAvailableCards((prev) => [...prev, card].sort(cardSort));
+    if (fromPosition) {
+      setSeats((prev) => ({
+        ...prev,
+        [fromPosition]: prev[fromPosition].filter((c) => c !== card),
+      }));
+    }
+
+    // Add back to top if not already there
+    setAvailableCards((prev) => {
+      if (!prev.includes(card)) {
+        return [...prev, card].sort(cardSort);
+      }
+      return prev;
+    });
+
+    setDraggedCard(null);
   };
 
   const handleReset = () => {
@@ -50,8 +87,19 @@ function App() {
   };
 
   const handleDragStart = (card) => {
-    setAvailableCards((prev) => prev.filter((c) => c !== card));
     setDraggedCard(card);
+    // Remove from top immediately
+    setAvailableCards((prev) => prev.filter((c) => c !== card));
+  };
+
+  const returnCardToTop = (card) => {
+    setAvailableCards((prev) => {
+      if (!prev.includes(card)) {
+        return [...prev, card].sort(cardSort);
+      }
+      return prev;
+    });
+    setDraggedCard(null);
   };
 
   const cardSort = (a, b) => fullDeck.indexOf(a) - fullDeck.indexOf(b);
@@ -60,7 +108,7 @@ function App() {
     accept: "CARD",
     drop: (item, monitor) => {
       if (!monitor.didDrop()) {
-        setAvailableCards((prev) => [...prev, item.card].sort(cardSort));
+        returnCardToTop(item.card);
       }
       setDraggedCard(null);
     },
@@ -68,9 +116,6 @@ function App() {
 
   return (
     <div className="app" ref={dropRef}>
-      <div className="top-bar">
-        <button onClick={handleReset} className="reset-button">Reset Table</button>
-      </div>
 
       <div className="card-bar no-scroll">
         {availableCards.map((card) => (
@@ -80,12 +125,11 @@ function App() {
 
       <Table
         seats={seats}
-        onDropCard={(pos, card) => {
-          handleDropCard(pos, card);
-          setDraggedCard(null);
-        }}
+        onDropCard={handleDropCard}
         onRemoveCard={handleRemoveCard}
+        returnCardToTop={returnCardToTop}
       />
+      <button onClick={handleReset} className="reset-button">Reset Table</button>
     </div>
   );
 }
