@@ -3,6 +3,7 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
+  overflow-x: hidden;
 }
 
 .app {
@@ -10,10 +11,55 @@ body {
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  transition: margin-right 0.3s ease;
+}
+
+.app.with-sidebar {
+  margin-right: 300px;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 300px;
+  height: 100%;
+  background-color: #f4f4f4;
+  border-left: 2px solid #ccc;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  z-index: 15;
+  transform: translateX(100%);
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #333;
+  color: white;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 20;
+  font-size: 18px;
+  line-height: 1;
 }
 
 .top-bar {
-  display: none;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px;
+  background: #fafafa;
+  border-bottom: 1px solid #ccc;
+  transition: margin-left 0.3s ease;
 }
 
 .reset-button {
@@ -44,6 +90,7 @@ body {
   border-bottom: 2px solid #ccc;
   overflow-y: auto;
   justify-content: center;
+  transition: margin-left 0.3s ease;
 }
 
 .card {
@@ -75,6 +122,14 @@ body {
   overflow: hidden;
   position: relative;
   min-height: 0;
+  transition: margin-left 0.3s ease;
+}
+
+.table-container .sidebar-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 20;
 }
 
 .table-oval {
@@ -129,7 +184,7 @@ body {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 42px;
+  gap: 32px;
   z-index: 5;
 }
 
@@ -141,7 +196,7 @@ body {
 }
 
 .label {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   font-weight: bold;
   color: white;
 }
@@ -152,8 +207,8 @@ body {
 }
 
 .community-card {
-  width: clamp(78px, 7.2vw, 102px);
-  height: clamp(108px, 9.6vw, 144px);
+  width: clamp(65px, 6vw, 85px);
+  height: clamp(90px, 8vw, 120px);
   object-fit: contain;
   border-radius: 4px;
   background-color: white;

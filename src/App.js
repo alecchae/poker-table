@@ -28,6 +28,7 @@ function App() {
   const [seats, setSeats] = useState(initialSeats);
   const [availableCards, setAvailableCards] = useState(fullDeck);
   const [draggedCard, setDraggedCard] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleDropCard = (position, card) => {
   setSeats((prevSeats) => {
@@ -169,27 +170,40 @@ useEffect(() => {
   }));
 
   return (
-    <div className="app" ref={dropRef}>
-
-      <div className="card-bar no-scroll">
-        {availableCards.map((card) => (
-          <Card key={card} card={card} onDragStart={handleDragStart} />
-        ))}
-      </div>
-
-      <Table
-  seats={seats}
-  onDropCard={handleDropCard}
-  onRemoveCard={handleRemoveCard}
-  returnCardToTop={returnCardToTop}
-  community={community}
-  onRemoveCommunityCard={handleRemoveCommunityCard} 
-  onDropCommunityCard={handleDropCommunityCard}
-/>
-
-      <button onClick={handleReset} className="reset-button">Reset Table</button>
+  <div className={`app ${sidebarOpen ? "with-sidebar" : ""}`} ref={dropRef}>
+    {/* Sidebar Panel */}
+    <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+      <h2>Analysis</h2>
+      {/* Put solver results, stats, etc. here */}
     </div>
-  );
+
+    {/* Sidebar Toggle Tab */}
+    <div className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+      {sidebarOpen ? "⮞" : "⮜"}
+    </div>
+
+    {/* Top Card Bar */}
+    <div className="card-bar no-scroll">
+      {availableCards.map((card) => (
+        <Card key={card} card={card} onDragStart={handleDragStart} />
+      ))}
+    </div>
+
+    {/* Poker Table */}
+    <Table
+      seats={seats}
+      onDropCard={handleDropCard}
+      onRemoveCard={handleRemoveCard}
+      returnCardToTop={returnCardToTop}
+      community={community}
+      onDropCommunityCard={handleDropCommunityCard}
+      onRemoveCommunityCard={handleRemoveCommunityCard}
+    />
+
+    {/* Reset Button */}
+    <button onClick={handleReset} className="reset-button">Reset Table</button>
+  </div>
+);
 }
 
 export default AppWrapper;
